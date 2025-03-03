@@ -9,19 +9,18 @@ body {
     padding: 20px;
     border-right: 1px solid #ccc;
 }
-/*Increased size, added padding*/
-#image-container{
+
+#image-container {
     width: 70%;
-    padding-top: 20px; /* Add padding for top labels */
-    padding-left: 30px; /* Add padding for left labels */
-    position: relative; /* Important for absolute positioning */
+    padding-top: 20px;    /*  Space for top labels */
+    padding-left: 30px;   /*  Space for left labels */
+    position: relative;    /*  Important for absolute positioning */
 }
 
-/*Added absolute positioning*/
 #poolingCanvas {
     position: absolute;
-    top: 20px;  /* Match top padding */
-    left: 30px; /* Match left padding */
+    top: 20px;     /*  Match top padding */
+    left: 30px;    /*  Match left padding */
 }
 
 .input-group {

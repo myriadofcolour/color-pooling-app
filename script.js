@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
         stitchesPerRowInput.value = currentValue + 1;
         generatePattern();
     });
+
     function parseColorSequence() {
         const colorInputsContainer = document.getElementById("color-inputs");
         const inputGroups = colorInputsContainer.getElementsByClassName('color-input-group');
@@ -123,6 +124,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const canvas = poolingCanvas;
         const ctx = canvas.getContext('2d');
 
+        // --- OFFSETS (Match CSS Padding) ---
+        const topOffset = 20;  // Match CSS padding-top
+        const leftOffset = 30; // Match CSS padding-left
+        const labelOffset = 5; // Fine-tuning.
+
         const stitchWidth = 10;
         let stitchHeight;
         switch (stitchType) {
@@ -133,6 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'linen': stitchHeight = 20; break;
             default: stitchHeight = 10;
         }
+
+        // --- CORRECT Canvas Size Calculation ---
         canvas.width = stitchesPerRow * stitchWidth;
         canvas.height = Math.ceil(repeatLength * repeatCount / stitchesPerRow) * stitchHeight;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -148,7 +156,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return sequence[sequenceIndex].color;
         }
 
-        // Simplified advanceToNextColor
         function advanceToNextColor() {
             currentStitchInColor++;
             if (currentStitchInColor >= currentColorInfo.count) {
@@ -160,9 +167,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let totalStitchCount = 0;
         let offset = 0;
 
+        // --- Draw Stitches (WITH OFFSETS) ---
         while (totalStitchCount < repeatLength * repeatCount) {
-            const x = goingRight ? currentStitchInRow * stitchWidth : (stitchesPerRow - 1 - currentStitchInRow) * stitchWidth;
-            const y = currentRow * stitchHeight;
+            // Apply offsets here!
+            const x = (goingRight ? currentStitchInRow * stitchWidth : (stitchesPerRow - 1 - currentStitchInRow) * stitchWidth) + leftOffset;
+            const y = (currentRow * stitchHeight) + topOffset;
             const currentColor = getCurrentColor();
 
             if (stitchType === 'linen') {
@@ -197,117 +206,142 @@ document.addEventListener('DOMContentLoaded', function() {
                 goingRight = !goingRight;
             }
         }
+// --- Draw Major Gridlines (BEFORE Labels, WITH OFFSETS) ---
+if (!isNaN(parseInt(gridlineInterval))) {
+    const interval = parseInt(gridlineInterval);
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 2;
+    ctx.font = "12px sans-serif";
+    ctx.fillStyle = 'black';
 
-        if (showGridlines) {
-            ctx.strokeStyle = 'lightgray';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= canvas.height / stitchHeight; i++) {
-                ctx.beginPath();
-                ctx.moveTo(0, i * stitchHeight);
-                ctx.lineTo(canvas.width, i * stitchHeight);
-                ctx.stroke();
-            }
-            for (let i = 0; i <= stitchesPerRow; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * stitchWidth, 0);
-                ctx.lineTo(i * stitchWidth, canvas.height);
-                ctx.stroke();
-            }
-        }
-
-        if (!isNaN(parseInt(gridlineInterval))) {
-            const interval = parseInt(gridlineInterval);
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
-            ctx.font = "12px sans-serif";
-
-            for (let i = interval; i < stitchesPerRow; i += interval) {
-                const x = i * stitchWidth;
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
-                ctx.fillText(i, x + 2, 10);
-            }
-
-            for (let i = interval; i < canvas.height / stitchHeight; i += interval) {
-                const y = i * stitchHeight;
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-                ctx.fillText(i, 2, y - 2);
-            }
-        }
+    // Vertical lines (WITH OFFSETS)
+    for (let i = interval; i < stitchesPerRow; i += interval) {
+        const x = i * stitchWidth + leftOffset; // Add offset
+        ctx.beginPath();
+        ctx.moveTo(x, topOffset); // Start from topOffset
+        ctx.lineTo(x, canvas.height + topOffset);  // Go down to canvas.height + topOffset
+        ctx.stroke();
     }
 
-    // --- Drag and Drop Functionality ---
-    function addDragAndDropHandlers(element) {
-        element.addEventListener('dragstart', handleDragStart);
-        element.addEventListener('dragover', handleDragOver);
-        element.addEventListener('dragenter', handleDragEnter);
-        element.addEventListener('dragleave', handleDragLeave);
-        element.addEventListener('drop', handleDrop);
-        element.addEventListener('dragend', handleDragEnd);
+    // Horizontal lines (WITH OFFSETS)
+    for (let i = interval; i < canvas.height / stitchHeight; i += interval) {
+        const y = i * stitchHeight + topOffset; // Add offset
+        ctx.beginPath();
+        ctx.moveTo(leftOffset, y); // Start from leftOffset
+        ctx.lineTo(canvas.width + leftOffset, y); // Extend past canvas
+        ctx.stroke();
+    }
+}
+
+
+// --- Draw Thin Gridlines (BEFORE Labels, WITH OFFSETS) ---
+if (showGridlines) {
+    ctx.strokeStyle = 'lightgray';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= canvas.height / stitchHeight; i++) {
+        ctx.beginPath();
+        ctx.moveTo(leftOffset, i * stitchHeight + topOffset); // Add offsets
+        ctx.lineTo(canvas.width + leftOffset, i * stitchHeight + topOffset); // Add offsets and extend
+        ctx.stroke();
+    }
+    for (let i = 0; i <= stitchesPerRow; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * stitchWidth + leftOffset, topOffset); // Add offsets
+        ctx.lineTo(i * stitchWidth + leftOffset, canvas.height + topOffset); // Add offsets and extend
+        ctx.stroke();
+    }
+}
+
+// --- Draw Labels (WITH CORRECT OFFSETS, and *AFTER* drawing everything else) ---
+if (!isNaN(parseInt(gridlineInterval))) {
+    const interval = parseInt(gridlineInterval);
+    const fontSize = 12;
+
+    // Top Labels (Vertical Gridlines)
+    for (let i = interval; i < stitchesPerRow; i += interval) {
+        const x = i * stitchWidth + leftOffset; // Canvas x + container offset
+        const label = String(i);
+        const textWidth = ctx.measureText(label).width;
+        // CORRECTED Y:  Use topOffset - fontSize (to move it above)
+        ctx.fillText(label, x - textWidth / 2, topOffset - 4); // Center horizontally
     }
 
-    let dragSrcEl = null;
-
-    function handleDragStart(e) {
-        dragSrcEl = this;
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.innerHTML);
-        this.classList.add('dragging');
+    // Left Labels (Horizontal Gridlines)
+    for (let i = interval; i < canvas.height / stitchHeight; i += interval) {
+        const y = i * stitchHeight + topOffset;  // Canvas y + container offset
+        // CORRECTED X: Use leftOffset, subtract a little for visual centering.
+        ctx.fillText(i, 3, y + fontSize / 2 - 2); // Adjust vertical centering
     }
+}
+}
 
-    function handleDragOver(e) {
-        if (e.preventDefault) {
-            e.preventDefault();
-        }
-        e.dataTransfer.dropEffect = 'move';
-        return false;
+// --- Drag and Drop Functionality ---
+function addDragAndDropHandlers(element) {
+element.addEventListener('dragstart', handleDragStart);
+element.addEventListener('dragover', handleDragOver);
+element.addEventListener('dragenter', handleDragEnter);
+element.addEventListener('dragleave', handleDragLeave);
+element.addEventListener('drop', handleDrop);
+element.addEventListener('dragend', handleDragEnd);
+}
+
+let dragSrcEl = null;
+
+function handleDragStart(e) {
+dragSrcEl = this;
+e.dataTransfer.effectAllowed = 'move';
+e.dataTransfer.setData('text/html', this.innerHTML);
+this.classList.add('dragging');
+}
+
+function handleDragOver(e) {
+if (e.preventDefault) {
+    e.preventDefault();
+}
+e.dataTransfer.dropEffect = 'move';
+return false;
+}
+
+function handleDragEnter(e) {
+this.classList.add('over');
+}
+
+function handleDragLeave(e) {
+this.classList.remove('over');
+}
+
+function handleDrop(e) {
+if (e.stopPropagation) {
+    e.stopPropagation();
+}
+if (dragSrcEl != this) {
+    const parent = this.parentNode;
+    const nextSibling = this.nextSibling;
+    parent.insertBefore(dragSrcEl, this);
+
+    if (nextSibling) {
+        parent.insertBefore(this, nextSibling);
+    } else {
+        parent.appendChild(this);
     }
+}
 
-    function handleDragEnter(e) {
-        this.classList.add('over');
-    }
+return false;
+}
 
-    function handleDragLeave(e) {
-        this.classList.remove('over');
-    }
+function handleDragEnd(e) {
+const colorInputGroups = document.querySelectorAll('.color-input-group');
+colorInputGroups.forEach(function(group) {
+    group.classList.remove('dragging');
+    group.classList.remove('over');
+});
+generatePattern();
+}
 
-    function handleDrop(e) {
-        if (e.stopPropagation) {
-            e.stopPropagation();
-        }
-        if (dragSrcEl != this) {
-            const parent = this.parentNode;
-            const nextSibling = this.nextSibling;
-            parent.insertBefore(dragSrcEl, this);
-
-            if (nextSibling) {
-                parent.insertBefore(this, nextSibling);
-            } else {
-                parent.appendChild(this);
-            }
-        }
-
-        return false;
-    }
-
-    function handleDragEnd(e) {
-        const colorInputGroups = document.querySelectorAll('.color-input-group');
-        colorInputGroups.forEach(function(group) {
-            group.classList.remove('dragging');
-            group.classList.remove('over');
-        });
-        generatePattern();
-    }
-
-    // --- Default Colors ---
-    addColor('blue', '4');
-    addColor('yellow', '2');
-    addColor('red', '3');
-    addColor('yellow', '2');
-    generatePattern();
+// --- Default Colors ---
+addColor('blue', '4');
+addColor('yellow', '2');
+addColor('red', '3');
+addColor('yellow', '2');
+generatePattern();
 });
