@@ -10,7 +10,51 @@
     <h1>Crochet Argyle Web App</h1>
 
     <div id="input-container">
+        <h2>Input Parameters</h2>
+
+        <div class="input-group">
+            <label for="color-sequence">Color Sequence:</label>
+            <textarea id="color-sequence" rows="5" placeholder="Enter colors and stitch counts, one per line (e.g., Red: 10, Blue: 5)" readonly></textarea>
+            <button id="add-color">Add Color</button> <button id="remove-color">Remove Color</button>
+            <div id = "color-visualization"> </div>
         </div>
+
+        <div class="input-group">
+            <label for="stitches-per-row">Stitches Per Row:</label>
+            <div class="number-input-group">
+                <button type="button" id="decrement-stitches">-</button>
+                <input type="number" id="stitches-per-row" min="1" value="30">
+                <button type="button" id="increment-stitches">+</button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="stitch-type">Stitch Type:</label>
+            <select id="stitch-type">
+                <option value="sc">Single Crochet (sc)</option>
+                <option value="dc">Double Crochet (dc)</option>
+                <option value="hdc">Half Double Crochet (hdc)</option>
+                <option value="tr">Treble Crochet (tr)</option>
+                <option value="linen">Linen Stitch (Moss Stitch)</option>
+            </select>
+        </div>
+         <div class="input-group">
+            <label for="row-offset">Row Offset:</label>
+            <input type="number" id="row-offset" min="1" value="1">
+        </div>
+          <div class="input-group">
+            <label for="color-change-tolerance">Color Change Tolerance:</label>
+            <input type="number" id="color-change-tolerance" min="0" value="0">
+        </div>
+
+        <div class="input-group">
+            <label for="gridlines">Show Gridlines:</label>
+            <input type="checkbox" id="gridlines" checked>
+        </div>
+
+        <button id="generate-button">Generate Pattern</button>
+        <p id="repeat-length"></p>
+    </div>
     <div id ="image-container">
         <canvas id="poolingCanvas"></canvas>
     </div>

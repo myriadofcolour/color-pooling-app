@@ -18,3 +18,61 @@ body {
     /*  border: 1px solid black; /* For now, a simple border */*/
 
 }
+
+.input-group {
+    margin-bottom: 10px; /* Add spacing between input groups */
+}
+
+.input-group label {
+    display: block; /* Make labels appear above the input fields */
+    margin-bottom: 5px;
+}
+
+.input-group input[type="number"],
+.input-group select,
+.input-group textarea{
+    width: 100%; /* Make input fields fill the container width */
+    padding: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box; /* Include padding and border in the element's total width/height */
+}
+
+#generate-button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+#color-visualization {
+    display: flex; /* Use flexbox to arrange color previews */
+    flex-wrap: wrap; /* Allow wrapping to the next line if needed*/
+    gap: 5px; /* Spacing between color previews */
+
+}
+.color-preview {
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+
+}
+
+/* ... (previous CSS) ... */
+.number-input-group {
+    display: flex;
+    align-items: center; /* Vertically center the items */
+}
+
+.number-input-group button {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.number-input-group input[type="number"] {
+    width: auto; /* Let the input take its natural width */
+    margin: 0 5px; /* Add some spacing between the buttons and input */
+    text-align: center; /* Center the number within the input */
+}
