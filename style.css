@@ -1,0 +1,20 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: row; /* Arrange input and output side-by-side */
+}
+
+#input-container {
+    width: 30%; /* Adjust as needed */
+    padding: 20px;
+    border-right: 1px solid #ccc; /* Optional: Add a separator */
+}
+#image-container{
+    width: 70%;
+}
+
+#poolingCanvas {
+    /* Add styles later to control the canvas appearance */
+    /*  border: 1px solid black; /* For now, a simple border */*/
+
+}
