@@ -39,28 +39,22 @@
                 <option value="linen">Linen Stitch (Moss Stitch)</option>
             </select>
         </div>
-        <div class="input-group">
-            <label for="color-change-tolerance">Color Change Tolerance:</label>
-            <input type="number" id="color-change-tolerance" min="0" value="0">
-        </div>
 
         <div class="input-group">
             <label for="repeat-count">Repeat Count:</label>
             <input type="number" id="repeat-count" min="1" value="1">
         </div>
 
-        <div class="input-group">
-            <label for="gridlines">Show Gridlines:</label>
-            <input type="checkbox" id="gridlines" checked>
-        </div>
-
         <div class="input-group"> <label for="gridline-interval">Gridline Interval:</label>
             <select id="gridline-interval">
-                <option value="pixel">Pixel</option>
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="25">25</option>
             </select>
+        </div>
+        <div class="input-group">
+            <label for="show-outline">Show Border Outline:</label>
+            <input type="checkbox" id="show-outline" checked>
         </div>
 
         <button id="generate-button">Generate Pattern</button>
