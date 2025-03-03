@@ -9,11 +9,20 @@ body {
     padding: 20px;
     border-right: 1px solid #ccc;
 }
+/*Increased size, added padding*/
 #image-container{
     width: 70%;
+    padding-top: 20px; /* Add padding for top labels */
+    padding-left: 30px; /* Add padding for left labels */
+    position: relative; /* Important for absolute positioning */
 }
 
-#poolingCanvas {}
+/*Added absolute positioning*/
+#poolingCanvas {
+    position: absolute;
+    top: 20px;  /* Match top padding */
+    left: 30px; /* Match left padding */
+}
 
 .input-group {
     margin-bottom: 10px;
@@ -71,12 +80,11 @@ body {
     gap: 5px;
     margin-bottom: 5px;
     align-items: center;
-    cursor: grab;  /* Change cursor to indicate draggable */
+    cursor: grab;
 }
-/*Style when dragging*/
 .color-input-group.dragging {
-    opacity: 0.5;  /* Reduce opacity while dragging */
-    border: 2px dashed #ccc; /* Add a dashed border*/
+    opacity: 0.5;
+    border: 2px dashed #ccc;
 }
 
 .color-input-group input {

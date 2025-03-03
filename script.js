@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const decrementStitchesButton = document.getElementById("decrement-stitches");
     const incrementStitchesButton = document.getElementById("increment-stitches");
     const poolingCanvas = document.getElementById("poolingCanvas");
+    const gridlineIntervalSelect = document.getElementById("gridline-interval"); // Get the new select
 
     addColorButton.addEventListener("click", addColor);
     removeColorButton.addEventListener("click", removeColor);
@@ -100,6 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const tolerance = parseInt(colorChangeToleranceInput.value, 10);
         const showGridlines = gridlinesCheckbox.checked;
         const repeatCount = parseInt(document.getElementById("repeat-count").value, 10);
+        const gridlineInterval = gridlineIntervalSelect.value; // Get selected interval
 
         const totalStitchesInSequence = sequence.reduce((sum, item) => sum + item.count, 0);
         const repeatLength = lcm(totalStitchesInSequence, stitchesPerRow);
@@ -115,11 +117,11 @@ document.addEventListener('DOMContentLoaded', function() {
         function lcm(a, b) {
             return (a * b) / gcd(a, b);
         }
-
-        drawPatternToCanvas(sequence, stitchesPerRow, stitchType, tolerance, showGridlines, repeatLength, repeatCount);
+        //Pass gridlineInterval
+        drawPatternToCanvas(sequence, stitchesPerRow, stitchType, tolerance, showGridlines, repeatLength, repeatCount, gridlineInterval);
     }
 
-    function drawPatternToCanvas(sequence, stitchesPerRow, stitchType, tolerance, showGridlines, repeatLength, repeatCount) {
+    function drawPatternToCanvas(sequence, stitchesPerRow, stitchType, tolerance, showGridlines, repeatLength, repeatCount, gridlineInterval) {
         const canvas = poolingCanvas;
         const ctx = canvas.getContext('2d');
 
@@ -196,7 +198,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 goingRight = !goingRight;
             }
         }
-        if (showGridlines) {
+
+        // --- Gridlines ---
+        if (showGridlines || gridlineInterval === "pixel") {
             ctx.strokeStyle = 'lightgray';
             ctx.lineWidth = 1;
             for (let i = 0; i <= canvas.height / stitchHeight; i++) {
@@ -210,6 +214,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 ctx.moveTo(i * stitchWidth, 0);
                 ctx.lineTo(i * stitchWidth, canvas.height);
                 ctx.stroke();
+            }
+        }
+
+        // Draw major gridlines and labels
+        if (gridlineInterval !== "pixel" && !isNaN(parseInt(gridlineInterval))) {
+            const interval = parseInt(gridlineInterval);
+            ctx.strokeStyle = 'black'; // Major gridlines are black
+            ctx.lineWidth = 2; // Thicker lines
+            ctx.font = "12px sans-serif"; // Font for labels
+
+            // Vertical lines and labels
+            for (let i = interval; i < stitchesPerRow; i += interval) {
+                const x = i * stitchWidth;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+                ctx.fillText(i, x + 2, 10); // Add label (x + 2 for slight offset)
+            }
+
+            // Horizontal lines and labels
+            for (let i = interval; i < canvas.height / stitchHeight; i += interval) {
+                const y = i * stitchHeight;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+                ctx.fillText(i, 2, y - 2);  // Add label (y - 2 for slight offset)
             }
         }
     }
@@ -229,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleDragStart(e) {
         dragSrcEl = this; // 'this' refers to the element being dragged
         e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/html', this.innerHTML); //not used, but good practice
+        e.dataTransfer.setData('text/html', this.innerHTML);
         this.classList.add('dragging'); // Add dragging class for styling
     }
 
@@ -254,6 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation(); // Stops the browser from redirecting.
         }
 
+        // Don't do anything if dropping the same column we're dragging.
         if (dragSrcEl != this) {
             // Get the parent element (the color-inputs container)
             const parent = this.parentNode;
@@ -275,6 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return false;
     }
+
     function handleDragEnd(e) {
         // Remove the 'dragging' class from all color input groups
         const colorInputGroups = document.querySelectorAll('.color-input-group');
