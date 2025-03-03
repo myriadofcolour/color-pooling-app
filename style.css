@@ -1,55 +1,45 @@
 body {
     font-family: sans-serif;
     display: flex;
-    flex-direction: row; /* Arrange input and output side-by-side */
+    flex-direction: row;
 }
 
 #input-container {
-    width: 30%; /* Adjust as needed */
+    width: 30%;
     padding: 20px;
-    border-right: 1px solid #ccc; /* Optional: Add a separator */
+    border-right: 1px solid #ccc;
 }
 #image-container{
     width: 70%;
 }
 
-#poolingCanvas {
-    /* Add styles later to control the canvas appearance */
-    /*   border: 1px solid black; /* For now, a simple border */*/
-
-}
+#poolingCanvas {}
 
 .input-group {
-    margin-bottom: 10px; /* Add spacing between input groups */
+    margin-bottom: 10px;
 }
 
 .input-group label {
-    display: block; /* Make labels appear above the input fields */
+    display: block;
     margin-bottom: 5px;
 }
 
 .input-group input[type="number"],
 .input-group select,
 .input-group textarea{
-    width: 100%; /* Make input fields fill the container width */
+    width: 100%;
     padding: 5px;
     border: 1px solid #ccc;
-    box-sizing: border-box; /* Include padding and border in the element's total width/height */
+    box-sizing: border-box;
 }
 
 #generate-button {
-    background-color: #4CAF50; /* Green */
+    background-color: #4CAF50;
     color: white;
     padding: 10px 15px;
     border: none;
     cursor: pointer;
     margin-top: 10px;
-}
-#color-visualization {
-    display: flex; /* Use flexbox to arrange color previews */
-    flex-wrap: wrap; /* Allow wrapping to the next line if needed*/
-    gap: 5px; /* Spacing between color previews */
-
 }
 .color-preview {
     width: 20px;
@@ -58,10 +48,9 @@ body {
 
 }
 
-/* ... (previous CSS) ... */
 .number-input-group {
     display: flex;
-    align-items: center; /* Vertically center the items */
+    align-items: center;
 }
 
 .number-input-group button {
@@ -72,7 +61,36 @@ body {
 }
 
 .number-input-group input[type="number"] {
-    width: auto; /* Let the input take its natural width */
-    margin: 0 5px; /* Add some spacing between the buttons and input */
-    text-align: center; /* Center the number within the input */
+    width: auto;
+    margin: 0 5px;
+    text-align: center;
+}
+
+.color-input-group {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 5px;
+    align-items: center;
+    cursor: grab;  /* Change cursor to indicate draggable */
+}
+/*Style when dragging*/
+.color-input-group.dragging {
+    opacity: 0.5;  /* Reduce opacity while dragging */
+    border: 2px dashed #ccc; /* Add a dashed border*/
+}
+
+.color-input-group input {
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+.color-name-input{
+  width: 60%;
+}
+.stitch-count-input{
+  width: 20%;
+}
+.color-input-group .color-preview {
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
 }
