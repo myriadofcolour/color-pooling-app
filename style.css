@@ -14,13 +14,13 @@ body {
     width: 70%;
     padding-top: 20px;    /*  Space for top labels */
     padding-left: 30px;   /*  Space for left labels */
-    position: relative;    /*  Important for absolute positioning */
+    position: relative;     /*  Important for absolute positioning */
 }
 
 #poolingCanvas {
     position: absolute;
-    top: 20px;     /*  Match top padding */
-    left: 30px;    /*  Match left padding */
+    top: 20px;      /*  Match top padding */
+    left: 30px;     /*  Match left padding */
 }
 
 .input-group {
@@ -91,10 +91,10 @@ body {
     border: 1px solid #ccc;
 }
 .color-name-input{
-  width: 60%;
+    width: 60%;
 }
 .stitch-count-input{
-  width: 20%;
+    width: 20%;
 }
 .color-input-group .color-preview {
     width: 20px;

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Input Elements --- (No Changes)
+    // --- Input Elements ---
     const addColorButton = document.getElementById("add-color");
     const removeColorButton = document.getElementById("remove-color");
     const stitchesPerRowInput = document.getElementById("stitches-per-row");
@@ -12,8 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const poolingCanvas = document.getElementById("poolingCanvas");
     const gridlineIntervalSelect = document.getElementById("gridline-interval");
 
-    // --- Event Listeners --- (No Changes)
-    addColorButton.addEventListener("click", addColor);
+    // --- Event Listeners ---
+    // KEEP THIS FIX: Use anonymous function to prevent passing the event.
+    addColorButton.addEventListener("click", function() { addColor(); });
     removeColorButton.addEventListener("click", removeColor);
     decrementStitchesButton.addEventListener("click", () => {
         let currentValue = parseInt(stitchesPerRowInput.value, 10);
@@ -29,8 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     generateButton.addEventListener("click", generatePattern);
 
-    // --- Helper Functions --- (No Changes)
-    function addColor(color = '', count = '') {
+   // --- Helper Functions ---
+    function addColor(color = '', count = '') { // Keep default parameters
         const colorInputsContainer = document.getElementById("color-inputs");
         const inputGroup = document.createElement('div');
         inputGroup.classList.add('color-input-group');
@@ -41,18 +42,18 @@ document.addEventListener('DOMContentLoaded', function() {
         colorInput.type = 'text';
         colorInput.placeholder = 'Color Name or Hex Code';
         colorInput.classList.add('color-name-input');
-        colorInput.value = color;
+        colorInput.value = color; // Use default '' if no color provided
 
         const countInput = document.createElement('input');
         countInput.type = 'number';
         countInput.placeholder = 'Stitch Count';
         countInput.classList.add('stitch-count-input');
         countInput.min = "1";
-        countInput.value = count;
+        countInput.value = count; // Use default '' if no count provided.
 
         const preview = document.createElement('div');
         preview.classList.add('color-preview');
-        preview.style.backgroundColor = color;
+        preview.style.backgroundColor = color; // Use default '' if no color
 
         colorInput.addEventListener('input', function() {
             preview.style.backgroundColor = this.value;
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return sequence;
     }
 
- // --- Main Generate Pattern Function --- (No Changes)
+    // --- Main Generate Pattern Function --- (No Changes)
     function generatePattern() {
         const sequence = parseColorSequence();
         const stitchesPerRow = parseInt(stitchesPerRowInput.value, 10);
@@ -118,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         drawPatternToCanvas(sequence, stitchesPerRow, stitchType, showGridlines, repeatLength, repeatCount, gridlineInterval);
     }
 
-    // --- **COMPLETELY REWRITTEN drawPatternToCanvas FUNCTION** ---
+    // --- **RESTORED drawPatternToCanvas FUNCTION (from before addColor fix)** ---
     function drawPatternToCanvas(sequence, stitchesPerRow, stitchType, showGridlines, repeatLength, repeatCount, gridlineInterval) {
         const canvas = poolingCanvas;
         const ctx = canvas.getContext('2d');
@@ -128,59 +129,74 @@ document.addEventListener('DOMContentLoaded', function() {
         const stitchWidth = 10;
         const stitchHeight = (stitchType === 'linen') ? 10 : (stitchType === 'dc' ? 20 : (stitchType === 'hdc' ? 15 : (stitchType === 'tr' ? 30 : 10)));
 
-        // Use full stitchesPerRow for canvas width
         canvas.width = stitchesPerRow * stitchWidth + leftOffset;
         canvas.height = Math.ceil((repeatLength * repeatCount) / stitchesPerRow) * stitchHeight + topOffset;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         let totalStitchCount = 0;
-        let colorIndex = 0;
-        let stitchesInCurrentColor = 0;
-        let currentColor = sequence.length > 0 ? sequence[0].color : 'black'; // Default to black
+        let sequenceIndex = 0;
+        let currentStitchInColor = 0;
 
-        // Iterate through logical stitch positions (like the "snake")
-        for (let i = 0; i < repeatLength * repeatCount; i++) {
-            let row = Math.floor(totalStitchCount / stitchesPerRow);
-            let col = totalStitchCount % stitchesPerRow;
-            const goingRight = row % 2 === 0;
-
-            // Adjust column for right-to-left rows
-            if (!goingRight) {
-                col = stitchesPerRow - 1 - col;
-            }
-
-            const x = col * stitchWidth + leftOffset;
-            const y = row * stitchHeight + topOffset;
-
-            // Linen Stitch: Check if we should draw at this position
-            if (stitchType === 'linen') {
-                if ((row + col) % 2 !== 0) {
-                    ctx.fillStyle = currentColor;
-                    ctx.fillRect(x, y, stitchWidth, stitchHeight);
-                }
-            } else {
-                // Non-Linen Stitch: Always draw
-                ctx.fillStyle = currentColor;
-                ctx.fillRect(x, y, stitchWidth, stitchHeight);
-            }
-
-            totalStitchCount++;
-
-            // Advance color sequence
-            stitchesInCurrentColor++;
-            if (stitchesInCurrentColor >= sequence[colorIndex % sequence.length].count) {
-                colorIndex = (colorIndex + 1) % sequence.length;
-                stitchesInCurrentColor = 0;
-                if(sequence.length>0){
-                    currentColor = sequence[colorIndex % sequence.length].color; // Update current color
-
-                }
-            }
-             if(totalStitchCount>= repeatLength * repeatCount) break; //check again after row completes.
+        function getCurrentColor() {
+            return sequence[sequenceIndex].color;
         }
 
+        function advanceColor() {
+            currentStitchInColor++;
+            if (currentStitchInColor >= sequence[sequenceIndex].count) {
+                sequenceIndex = (sequenceIndex + 1) % sequence.length;
+                currentStitchInColor = 0;
+            }
+        }
+
+        function reverseColor() {
+            currentStitchInColor--;
+            if (currentStitchInColor < 0) {
+                sequenceIndex = (sequenceIndex - 1 + sequence.length) % sequence.length; // Correct wrap-around
+                currentStitchInColor = sequence[sequenceIndex].count - 1; // Last stitch of previous color
+            }
+        }
+
+        for (let row = 0; row < Math.ceil((repeatLength * repeatCount) / stitchesPerRow); row++) {
+            const y = row * stitchHeight + topOffset;
+            const goingRight = row % 2 === 0;
+
+            for (let col = 0; col < stitchesPerRow; col++) {
+                const x = goingRight ? (col * stitchWidth + leftOffset) : ((stitchesPerRow - 1 - col) * stitchWidth + leftOffset);
+
+                if (stitchType === 'linen') {
+                    // Linen Stitch Logic
+                    const shouldDraw = goingRight ? (row + col) % 2 !== 0 : (row + (stitchesPerRow - 1 - col)) % 2 !== 0;
+
+                    if (shouldDraw) {
+                        ctx.fillStyle = getCurrentColor();
+                        ctx.fillRect(x, y, stitchWidth, stitchHeight);
+                        if(goingRight){
+                            advanceColor();
+                        } else {
+                            reverseColor();
+                        }
+                        totalStitchCount++;
+                    }
+                    else{
+                         if(!goingRight){
+                            reverseColor(); //when its just a regular linen stitch
+                        }
+                    }
+                } else {
+                    // All other stitch types
+                    ctx.fillStyle = getCurrentColor();
+                    ctx.fillRect(x, y, stitchWidth, stitchHeight);
+                    advanceColor();
+                    totalStitchCount++;
+                }
+                if(totalStitchCount>= repeatLength * repeatCount) break;
+            }
+            if(totalStitchCount>= repeatLength * repeatCount) break;
+        }
 
         // --- Gridline and Label Drawing Functions --- (Corrected for Linen)
+
         function drawMajorGridlines(interval, stitchType) {
             if (isNaN(parseInt(interval))) return;
 
@@ -235,7 +251,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const fontSize = 12;
             ctx.fillStyle = 'black';
             ctx.font = `${fontSize}px sans-serif`;
-
             //for linen stitch, each drawn stitch is two spaces
             let effectiveStitchWidth = (stitchType === "linen")? stitchWidth * 2 : stitchWidth;
             for (let i = parseInt(interval); i < stitchesPerRow; i += parseInt(interval)) {
@@ -260,8 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
             drawThinGridlines();
         }
     }
-
-    // --- Drag and Drop --- (No Changes)
+    // --- Drag and Drop ---
     function addDragAndDropHandlers(element) {
         element.addEventListener('dragstart', handleDragStart);
         element.addEventListener('dragover', handleDragOver);
@@ -313,8 +327,8 @@ document.addEventListener('DOMContentLoaded', function() {
         generatePattern();
     }
 
-    // --- Initial Setup --- (No Changes)
-    addColor();
+    // --- Initial Setup ---
+    addColor(); // Use default values.
     addColor();
     addColor();
     addColor();
